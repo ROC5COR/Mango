@@ -1,0 +1,20 @@
+{
+  "config_folder":"st_config",
+
+  "all_plugins":
+  [
+    "finance",
+    "weather",
+    "greetings",
+    "fetedujour",
+    "twitter"
+  ],
+
+  "normal_plugins":
+  [
+    "greetings",
+    "finance",
+    "weather",
+    "fetedujour"
+  ]
+}

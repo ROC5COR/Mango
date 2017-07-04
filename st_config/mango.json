@@ -1,5 +1,5 @@
 {
-  "config_folder":"/config_perso",
+  "config_folder":"st_config",
 
   "all_plugins":
   [
@@ -12,9 +12,6 @@
 
   "normal_plugins":
   [
-    "greetings",
-    "finance",
-    "weather",
-    "fetedujour"
+    "greetings"
   ]
 }

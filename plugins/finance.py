@@ -6,13 +6,15 @@ from prettytable import PrettyTable
 import time
 import utils
 
-def instance():
-	return finance()
 
-class finance():
+def instance():
+    return Finance()
+
+
+class Finance():
     def __init__(self):
         self.values = []
-        values = utils.loadJSON(utils.getMangoPath() + '/config/finance.json')['values']
+        values = utils.loadJSON(utils.getConfigFile('finance.json'))['values']
         for value in values:
             self.values.append(value)
         self.table = PrettyTable(['Name', 'LstTrdPrice', 'LstTrdTime'])

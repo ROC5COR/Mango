@@ -4,11 +4,11 @@ import time
 import utils
 
 def instance():
-    return greetings()
+    return Greetings()
 
-class greetings(object):
+class Greetings(object):
     def __init__(self):
-        data = utils.loadJSON(utils.getMangoPath()+'/config/greetings.json')
+        data = utils.loadJSON(utils.getConfigFile('greetings.json'))
         user_name = data['user_name']
         self.morningGreetings = ['Bonjour '+user_name+', bonne journée !', 'Bonjour, bon matin !']
         self.middayGreetings = ['Bonjour :)', 'Hola !','Salut !', 'Salut ! :)','Yo !']
@@ -18,7 +18,7 @@ class greetings(object):
         currentHour = int(time.localtime().tm_hour)
         if currentHour <= 11:
             print('[GRTNGS] '+random.choice(self.morningGreetings))
-        elif currentHour > 11 and currentHour <= 18:
+        elif 11 < currentHour <= 18:
             print('[GRTNGS] '+random.choice(self.middayGreetings))
         elif currentHour > 18:
             print('[GRTNGS] '+random.choice(self.eveningGreetings))

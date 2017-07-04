@@ -9,12 +9,12 @@ from prettytable import PrettyTable
 import utils
 
 def instance():
-    return weather()
+    return Weather()
 
-class weather(object):
+class Weather(object):
     def __init__(self):
         self.cities = []
-        cities = utils.loadJSON(utils.getMangoPath()+'/config/weather.json')['cities']
+        cities = utils.loadJSON(utils.getConfigFile('weather.json'))['cities']
         for city in cities:
             self.cities.append(city)
         #self.cities = ['Valence, France','Grenoble, France', 'Pierrelatte, France']

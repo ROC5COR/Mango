@@ -4,27 +4,27 @@ from urllib.request import urlopen, Request
 import re
 
 def instance():
-	return fetedujour()
+    return Fetedujour()
 
-class fetedujour(object):
-	def __init__(self):
-		self.url = "http://fetedujour.fr/"
+class Fetedujour(object):
+    def __init__(self):
+        self.url = "http://fetedujour.fr/"
 
-	def go(self):
-		try:
-			req = Request(self.url,None,{'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5'})
-			resp = urlopen(req)
-			content = resp.read()
-			data = re.search(r"<section class=\"bg\">.*?:(.*?)<\/h2>",str(content))
-			if(data):
-				print('[FDJ] Today we are celebrating : '+data.group(1).strip())
-			else:
-				print("No match found")
+    def go(self):
+        try:
+            req = Request(self.url,None,{'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5'})
+            resp = urlopen(req)
+            content = resp.read()
+            data = re.search(r"<section class=\"bg\">.*?:(.*?)<\/h2>",str(content))
+            if(data):
+                print('[FDJ] Today we are celebrating : '+data.group(1).strip())
+            else:
+                print("No match found")
 
-		except URLError as e:
-			print("[FDJ] Mango goes out of the plate !")
-			print("Error while downloading data ("+str(e)+")")
+        except URLError as e:
+            print("[FDJ] Mango goes out of the plate !")
+            print("Error while downloading data ("+str(e)+")")
 
-		except JSONDecodeError as e:
-			print("[FDJ] Mango can't parse data :(")
+        except JSONDecodeError as e:
+            print("[FDJ] Mango can't parse data :(")
 

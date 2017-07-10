@@ -2,12 +2,15 @@ import sys
 import json
 import os
 import inspect
-from importlib.util import spec_from_file_location, module_from_spec
+from http.client import RemoteDisconnected
 from importlib import import_module
-
+from urllib.error import URLError
+from urllib.request import urlopen
+from distutils.version import StrictVersion
 
 configPath = "home_config" # default value
 
+mango_version = StrictVersion('0.1.1')
 
 def loadJSON(file_name):
     #print('Load file : '+file_name)
@@ -41,5 +44,18 @@ def execute_module(module_path):
         loaded_module = load_plugin(module_path)
         instance = loaded_module.instance()
         instance.go()
-    except ModuleNotFoundError:
-        print("Plugin not found : " + str(module_path))
+    except ModuleNotFoundError as e:
+        print("Plugin not found : " + str(module_path)+ "("+str(e)+")")
+
+
+def internet_reachable():
+    google_server = 'http://216.58.192.142'
+    try:
+        urlopen(google_server, timeout=4)
+        return True
+    except URLError:
+        return False
+    except RemoteDisconnected:
+        return False
+
+

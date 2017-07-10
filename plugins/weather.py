@@ -17,16 +17,19 @@ class Weather(object):
         cities = utils.loadJSON(utils.getConfigFile('weather.json'))['cities']
         for city in cities:
             self.cities.append(city)
-        #self.cities = ['Valence, France','Grenoble, France', 'Pierrelatte, France']
+        api_key = utils.loadJSON(utils.getConfigFile('weather.json'))['api_key']
+
         self.table = PrettyTable(['City', 'Conditions', 'Temp [°C]', 'Wind', 'Humidity'])
-        self.owm = pyowm.OWM('7bd12f58954d6c8b53842c206e715f56')
+        self.owm = pyowm.OWM(api_key)
         self.owm.set_language('en')
-        self.currentLocation = json.loads(urlopen('http://freegeoip.net/json').read().decode())
-        self.eveningTime = datetime.datetime.now().replace(hour=20,minute=0)
+        self.eveningTime = datetime.datetime.now().replace(hour=20, minute=0)
         self.morningTime = datetime.datetime.now().replace(hour=8, minute=0)
-        self.tomorrowTime = (datetime.datetime.now().replace(hour=16,minute=0)+datetime.timedelta(days=1))
+        self.tomorrowTime = (datetime.datetime.now().replace(hour=16, minute=0)+datetime.timedelta(days=1))
 
     def go(self):
+        if not utils.internet_reachable():
+            print("Weather : Offline")
+            return -1
 
         #obs = self.owm.weather_at_coords(self.currentLocation['latitude'],self.currentLocation['longitude'])
         print('[WTHR/FRCST]')

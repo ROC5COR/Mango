@@ -11,7 +11,7 @@ def instance():
     return Finance()
 
 
-class Finance():
+class Finance(object):
     def __init__(self):
         self.values = []
         values = utils.loadJSON(utils.getConfigFile('finance.json'))['values']
@@ -24,6 +24,11 @@ class Finance():
         t = time.localtime()
         # print("Current time : "+str(t.tm_hour)+"h"+str(t.tm_min))
         thereIsData = False
+
+        if not utils.internet_reachable():
+            print("Finance : Offline")
+            return -1
+
         for value in self.values:
             try:
                 rawData = str(gf.getQuotes(value)).replace("'", '"')

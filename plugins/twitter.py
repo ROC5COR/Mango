@@ -10,7 +10,7 @@ def instance():
 class Twitter(object):
     def __init__(self):
         print('[TWTTR]')
-        twitterConfigData = utils.loadJSON(utils.getMangoPath() + '/config/twitter.json')
+        twitterConfigData = utils.loadJSON(utils.getConfigFile('twitter.json'))
         consKey = twitterConfigData["consumer_key"]
         consSecret = twitterConfigData["consumer_secret"]
         accessToken = twitterConfigData["access_token"]
@@ -22,6 +22,10 @@ class Twitter(object):
         self.table = PrettyTable(['Twitter trends'])
 
     def go(self):
+        if not utils.internet_reachable():
+            print("Twitter : offline")
+            return -1
+
         # public_tweets = api.home_timeline()
         # for tweet in public_tweets:
         #	print(tweet.text)

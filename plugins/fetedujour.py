@@ -2,6 +2,7 @@ from json import JSONDecodeError
 from urllib.error import URLError
 from urllib.request import urlopen, Request
 import re
+import utils
 
 def instance():
     return Fetedujour()
@@ -11,6 +12,9 @@ class Fetedujour(object):
         self.url = "http://fetedujour.fr/"
 
     def go(self):
+        if not utils.internet_reachable():
+            print("FeteDuJour : Offline")
+            return -1
         try:
             req = Request(self.url,None,{'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5'})
             resp = urlopen(req)

@@ -12,6 +12,7 @@
 
   "normal_plugins":
   [
-    "greetings"
+    "greetings",
+    "moon"
   ]
 }

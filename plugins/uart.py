@@ -2,7 +2,6 @@ import serial
 from serial.tools.list_ports import  comports
 import time
 import sys
-import os
 
 def instance():
     return Uart()
@@ -12,6 +11,7 @@ class Uart(object):
         self.serial = None
         self.portToChoose = -1
         self.ports = []
+        self.baudrate = 9600
 
     def normalize_text(self, text):
 
@@ -35,20 +35,37 @@ class Uart(object):
 
         try:
             while(True):
-                data = self.serial.read(self.serial.in_waiting or 1)
+                try:
+                    data = self.serial.read(self.serial.in_waiting or 1)
 
-                if data:
-                    sys.stdout.write(self.normalize_text(data))
-                    sys.stdout.flush()
-                time.sleep(0.01)
+                    if data:
+                        sys.stdout.write(self.normalize_text(data))
+                        sys.stdout.flush()
+                    time.sleep(0.01)
+                except UnicodeDecodeError as e:
+                    print("[UART] Error : "+str(e))
         except KeyboardInterrupt:
             print("Closing connection")
             self.serial.close()
 
-    def go(self):
-        self.enumerate_ports()
-        if len(self.ports) > 0:
-            self.open_port()
-        else:
-            print("No com ports detected")
-
+    def go(self, args: list):
+        if len(args) == 0:
+            self.enumerate_ports()
+            print("Syntax :\n- uart list\n- uart connect [port_number] [baudrate]")
+        elif args[0] == "list":
+            self.enumerate_ports()
+        elif args[0] == "help":
+            print("Syntax :\n- uart list\n- uart connect [port_number] [baudrate]")
+        elif args[0] == "connect":
+            if len(args) == 3:
+                self.baudrate = int(args[2])
+                self.portToChoose = int(args[1])
+                self.open_port()
+            elif len(args) == 2:
+                self.portToChoose = int(args[1])
+                self.open_port()
+            elif len(args) == 1:
+                self.portToChoose = len(args) - 1
+                self.open_port()
+            else:
+                print("Syntax error")

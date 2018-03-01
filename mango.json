@@ -1,5 +1,7 @@
 {
-  "config_folder":"default_config",
+  "config_folder":"home_config",
+  "mango_version":"0.1.2",
+  "plugins_path":"plugins",
 
   "all_plugins":
   [

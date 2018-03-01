@@ -11,7 +11,7 @@ class Fetedujour(object):
     def __init__(self):
         self.url = "http://fetedujour.fr/"
 
-    def go(self):
+    def go(self, args):
         if not utils.internet_reachable():
             print("FeteDuJour : Offline")
             return -1

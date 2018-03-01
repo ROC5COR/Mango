@@ -14,7 +14,7 @@ class Greetings(object):
         self.middayGreetings = ['Bonjour :)', 'Hola !','Salut !', 'Salut ! :)','Yo !']
         self.eveningGreetings = ['Bonsoir !','Bonne soirée à vous', 'Bonsoir '+user_name+' !']
 
-    def go(self):
+    def go(self, args):
         currentHour = int(time.localtime().tm_hour)
         if currentHour <= 11:
             print('[GRTNGS] '+random.choice(self.morningGreetings))

@@ -21,7 +21,7 @@ class Twitter(object):
         self.api = tweepy.API(auth)
         self.table = PrettyTable(['Twitter trends'])
 
-    def go(self):
+    def go(self, args):
         if not utils.internet_reachable():
             print("Twitter : offline")
             return -1

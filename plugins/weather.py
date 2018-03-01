@@ -26,7 +26,7 @@ class Weather(object):
         self.morningTime = datetime.datetime.now().replace(hour=8, minute=0)
         self.tomorrowTime = (datetime.datetime.now().replace(hour=16, minute=0)+datetime.timedelta(days=1))
 
-    def go(self):
+    def go(self, args):
         if not utils.internet_reachable():
             print("Weather : Offline")
             return -1

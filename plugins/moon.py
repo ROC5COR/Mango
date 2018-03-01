@@ -15,7 +15,7 @@ def instance():
 
 class Moon():
 
-    def go(self):
+    def go(self, args):
         pos = self.position()
         phase_name = self.phase(pos)
 

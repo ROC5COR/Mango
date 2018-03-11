@@ -24,12 +24,14 @@ class Uart(object):
             self.ports.append(port)
 
     def open_port(self):
+        self.enumerate_ports() # TODO : to change by a static variables shared by each instance of this class
+
         if len(self.ports) <= 0:
-            print("No port to open")
-            return
-        if self.portToChoose < len(self.ports) and self.portToChoose != -1:
-            print("Wrong port choice")
-            return
+            print("No port to open ("+str(len(self.ports))+" ports available")
+            return -1
+        if self.portToChoose > len(self.ports) and self.portToChoose != -1:
+            print("Wrong port choice (port number : "+str(self.portToChoose)+")")
+            return -1
         self.serial = serial.Serial(self.ports[self.portToChoose], timeout=1)
         print('Opening port : '+self.ports[self.portToChoose])
 
@@ -69,3 +71,5 @@ class Uart(object):
                 self.open_port()
             else:
                 print("Syntax error")
+        else:
+            print("Command "+str(args[0])+" unknown")

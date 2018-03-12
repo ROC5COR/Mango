@@ -1,11 +1,17 @@
 import utils
 from distutils.version import StrictVersion
 from importlib import import_module
+import mango_plugin
+import os
+
+
 
 # Variables
 mango_version = StrictVersion('0.0.0')  # default value
 config_path = "default_config"  # default value
 plugins_path = "plugins"
+command_to_module_path = dict()
+module_path_to_module_instance = dict()
 
 # Functions
 def init():
@@ -18,6 +24,8 @@ def init():
 
     global plugins_path
     plugins_path = utils.getPluginsPath()
+
+    load_modules()
 
     print("[Init] : OK")
     return 1
@@ -54,10 +62,50 @@ def execute_module(module_path: str, args=[]):
     try:
         loaded_module = load_plugin(module_path)
         instance = loaded_module.instance()
+
+        if not issubclass(instance.__class__, mango_plugin.mango_plugin):
+            print("[MANGO] Warning : This is not a subclass of mango_plugin")
+        print(instance.get_aliases())
+
         instance.go(args)
     except ModuleNotFoundError as e:
         print("Plugin not found : " + str(module_path) + "(" + str(e) + ")")
 
+
+
+def load_modules():
+    global command_to_module_path
+    global plugins_path
+    global module_path_to_module_instance
+
+    objects = os.listdir(plugins_path)
+
+    for i in objects:
+        if i.endswith('.py'):
+
+            try:
+                plugin_path = get_plugins_folder() + '.' + i[0:-3]
+                loaded_module = load_plugin(plugin_path) # Instanciate
+                instance = loaded_module.instance()
+                command_to_module_path[i[0:-3]] = plugin_path # Store command => plugin path
+                module_path_to_module_instance[plugin_path] = instance # Store plugin path => instance
+
+                if not issubclass(instance.__class__, mango_plugin.mango_plugin):
+                    print("[MANGO] Warning : This is not a subclass of mango_plugin")
+                else:
+                    aliases = instance.get_aliases()
+                    for alias in aliases:
+                        command_to_module_path[alias] = plugin_path
+
+            except ModuleNotFoundError as e:
+                print("Plugin not found : " + str(plugin_path) + "(" + str(e) + ")")
+            except Exception as e:
+                print("Error as occured while loading module ("+str(e)+")")
+
+    for k in command_to_module_path:
+        print(k,"=>",command_to_module_path[k])
+
+    print("[MANGO] All modules loaded")
 
 def parse_command(command: list):
     if command[0] == "":
@@ -66,4 +114,15 @@ def parse_command(command: list):
         print("Bye")
         return 0
     else:
-        return execute_module('plugins.' + str(command[0]), command[1:])
+        if command[0] in command_to_module_path:
+            if command_to_module_path[command[0]] in module_path_to_module_instance:
+                inst = module_path_to_module_instance[command_to_module_path[command[0]]]
+                inst.go(command[1:])
+                return 1
+            else:
+                print("Error : No instance of the module found")
+                return -1
+        else:
+            print("Error : No module named : "+command[0])
+            return -1
+        #return execute_module('plugins.' + str(command[0]), command[1:])

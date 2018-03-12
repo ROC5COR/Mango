@@ -1,12 +1,12 @@
 import random
 import time
-
+from mango_plugin import mango_plugin
 import utils
 
 def instance():
     return Greetings()
 
-class Greetings(object):
+class Greetings(mango_plugin):
     def __init__(self):
         data = utils.loadJSON(utils.getConfigFile('greetings.json'))
         user_name = data['user_name']

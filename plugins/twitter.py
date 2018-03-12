@@ -1,15 +1,16 @@
 import tweepy
 import utils
 from prettytable import PrettyTable
+from mango_plugin import mango_plugin
 
 
 def instance():
     return Twitter()
 
 
-class Twitter(object):
+class Twitter(mango_plugin):
     def __init__(self):
-        print('[TWTTR]')
+        #print('[TWTTR]')
         twitterConfigData = utils.loadJSON(utils.getConfigFile('twitter.json'))
         consKey = twitterConfigData["consumer_key"]
         consSecret = twitterConfigData["consumer_secret"]

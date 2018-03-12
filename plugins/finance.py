@@ -5,13 +5,15 @@ import json
 from prettytable import PrettyTable
 import time
 import utils
+from mango_plugin import mango_plugin
+
 
 
 def instance():
     return Finance()
 
 
-class Finance(object):
+class Finance(mango_plugin):
     def __init__(self):
         self.values = []
         values = utils.loadJSON(utils.getConfigFile('finance.json'))['values']

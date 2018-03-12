@@ -1,17 +1,15 @@
 import datetime
-import json
 import time
-from urllib.request import urlopen
-
 import pyowm
 from prettytable import PrettyTable
-
 import utils
+from mango_plugin import mango_plugin
+
 
 def instance():
     return Weather()
 
-class Weather(object):
+class Weather(mango_plugin):
     def __init__(self):
         self.cities = []
         cities = utils.loadJSON(utils.getConfigFile('weather.json'))['cities']

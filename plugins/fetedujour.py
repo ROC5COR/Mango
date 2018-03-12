@@ -3,15 +3,17 @@ from urllib.error import URLError
 from urllib.request import urlopen, Request
 import re
 import utils
+from mango_plugin import mango_plugin
+
 
 def instance():
     return Fetedujour()
 
-class Fetedujour(object):
+class Fetedujour(mango_plugin):
     def __init__(self):
         self.url = "http://fetedujour.fr/"
 
-    def go(self, args):
+    def go(self, args: list):
         if not utils.internet_reachable():
             print("FeteDuJour : Offline")
             return -1
@@ -32,3 +34,5 @@ class Fetedujour(object):
         except JSONDecodeError as e:
             print("[FDJ] Mango can't parse data :(")
 
+    def get_aliases(self):
+        return ['fdj']

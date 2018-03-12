@@ -6,7 +6,6 @@ import utils
 mango.init()
 print("Mango v"+str(mango.mango_version))
 
-
 if len(sys.argv) > 1: # An arguments was passed
     print(sys.argv[1])
     if sys.argv[1] == '--all' or sys.argv[1] == '-a' or sys.argv[1] == 'all' :

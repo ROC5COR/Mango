@@ -2,7 +2,7 @@ import tweepy
 import utils
 from prettytable import PrettyTable
 from mango_plugin import mango_plugin
-
+from MessageListener import MessageListener
 
 def instance():
     return Twitter()
@@ -22,9 +22,9 @@ class Twitter(mango_plugin):
         self.api = tweepy.API(auth)
         self.table = PrettyTable(['Twitter trends'])
 
-    def go(self, args):
+    def go(self, args: list, message_listener: MessageListener = MessageListener()):
         if not utils.internet_reachable():
-            print("Twitter : offline")
+            message_listener.printMessage("Twitter : offline")
             return -1
 
         # public_tweets = api.home_timeline()
@@ -50,7 +50,7 @@ class Twitter(mango_plugin):
         # print(trends)
         for trend in trends[:10]:
             self.table.add_row([trend['name']])
-        print(self.table)
+        message_listener.printMessage(self.table.get_string())
 
 
         # print(str(self.api.rate_limit_status()) + ' api calls left')

@@ -2,6 +2,7 @@ import random
 import time
 from mango_plugin import mango_plugin
 import utils
+from MessageListener import MessageListener
 
 def instance():
     return Greetings()
@@ -14,15 +15,15 @@ class Greetings(mango_plugin):
         self.middayGreetings = ['Bonjour :)', 'Hola !','Salut !', 'Salut ! :)','Yo !']
         self.eveningGreetings = ['Bonsoir !','Bonne soirée à vous', 'Bonsoir '+user_name+' !']
 
-    def go(self, args):
+    def go(self, args: list, message_listener: MessageListener = MessageListener()):
         currentHour = int(time.localtime().tm_hour)
         if currentHour <= 11:
-            print('[GRTNGS] '+random.choice(self.morningGreetings))
+            message_listener.printMessage('[GRTNGS] '+random.choice(self.morningGreetings))
         elif 11 < currentHour <= 18:
-            print('[GRTNGS] '+random.choice(self.middayGreetings))
+            message_listener.printMessage('[GRTNGS] '+random.choice(self.middayGreetings))
         elif currentHour > 18:
-            print('[GRTNGS] '+random.choice(self.eveningGreetings))
+            message_listener.printMessage('[GRTNGS] '+random.choice(self.eveningGreetings))
         else:
-            print("Can say hello to mango !")
+            message_listener.printMessage("Can say hello to mango !")
 
 

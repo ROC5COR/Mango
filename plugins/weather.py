@@ -4,6 +4,7 @@ import pyowm
 from prettytable import PrettyTable
 import utils
 from mango_plugin import mango_plugin
+from MessageListener import MessageListener
 
 
 def instance():
@@ -24,26 +25,27 @@ class Weather(mango_plugin):
         self.morningTime = datetime.datetime.now().replace(hour=8, minute=0)
         self.tomorrowTime = (datetime.datetime.now().replace(hour=16, minute=0)+datetime.timedelta(days=1))
 
-    def go(self, args):
+    def go(self, args:list, message_listener:MessageListener = MessageListener()):
         if not utils.internet_reachable():
-            print("Weather : Offline")
+            print("[Weather] : Can't reach the internet")
             return -1
 
         #obs = self.owm.weather_at_coords(self.currentLocation['latitude'],self.currentLocation['longitude'])
-        print('[WTHR/FRCST]')
+        message_listener.printMessage('[WTHR/FRCST]')
         fcast = self.owm.three_hours_forecast(self.cities[0])
         if time.localtime().tm_hour < 8:
-            print('In ' + fcast.get_forecast().get_location().get_name() + ' there will be ' + fcast.get_weather_at(
+            message_listener.printMessage('In ' + fcast.get_forecast().get_location().get_name() + ' there will be ' + fcast.get_weather_at(
                 self.morningTime).get_detailed_status() + ' this morning')
         elif time.localtime().tm_hour >= 8 and time.localtime().tm_hour < 20:
-            print('In '+fcast.get_forecast().get_location().get_name()+' there will be '+fcast.get_weather_at(
+            message_listener.printMessage('In '+fcast.get_forecast().get_location().get_name()+' there will be '+fcast.get_weather_at(
                 self.eveningTime).get_detailed_status()+' this evening')
         else:
-            print('In ' + fcast.get_forecast().get_location().get_name() + ' there will be ' + fcast.get_weather_at(
+            message_listener.printMessage('In ' + fcast.get_forecast().get_location().get_name() + ' there will be ' + fcast.get_weather_at(
                 self.tomorrowTime).get_detailed_status() + ' tomorrow')
 
-        print("")
+        message_listener.printMessage("")
 
+        self.table.clear_rows()
         for city in self.cities:
             obs = self.owm.weather_at_place(city)
             city = obs.get_location().get_name()+', '+obs.get_location().get_country()
@@ -52,5 +54,5 @@ class Weather(mango_plugin):
             wind = obs.get_weather().get_wind()['speed']
             humidity = obs.get_weather().get_humidity()
             self.table.add_row([city,conditions,temperature,wind,humidity])
-        print('[WTHR]')
-        print(self.table)
+        message_listener.printMessage('[WTHR]')
+        message_listener.printMessage(self.table.get_string())

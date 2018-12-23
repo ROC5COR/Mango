@@ -9,19 +9,19 @@ Modified by Romain LE DONGE
 import math, decimal, datetime
 from mango_plugin import mango_plugin
 dec = decimal.Decimal
-
+from MessageListener import MessageListener
 
 def instance():
     return Moon()
 
 class Moon(mango_plugin):
 
-    def go(self, args):
+    def go(self, args: list, message_listener: MessageListener = MessageListener()):
         pos = self.position()
         phase_name = self.phase(pos)
 
         #roundedpos = round(float(pos), 3)
-        print("[MOON] This evening there will be the %s" % phase_name.lower())
+        message_listener.printMessage("[MOON] This evening there will be the %s" % phase_name.lower())
 
     @staticmethod
     def position(now=datetime.datetime.now()):

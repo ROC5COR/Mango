@@ -1,17 +1,21 @@
-import utils
+import os
 from distutils.version import StrictVersion
 from importlib import import_module
+from MessageListener import MessageListener
+
+from sqlalchemy.ext.indexable import index_property
+
 import mango_plugin
-import os
-
-
+import utils
+import ClientConnection
 
 # Variables
 mango_version = StrictVersion('0.0.0')  # default value
-config_path = "default_config"  # default value
+config_path = "home_config"  # default value
 plugins_path = "plugins"
 command_to_module_path = dict()
 module_path_to_module_instance = dict()
+is_server_running = False
 
 # Functions
 def init():
@@ -107,22 +111,50 @@ def load_modules():
 
     print("[MANGO] All modules loaded")
 
-def parse_command(command: list):
+
+def parse_command(command: list, message_listener:MessageListener = MessageListener() ):
+    """
+
+    :param command: List of string commands
+    :return: state
+    """
     if command[0] == "":
         return 1
     elif command[0] == "exit":
-        print("Bye")
+        message_listener.printMessage("Bye")
         return 0
     else:
         if command[0] in command_to_module_path:
             if command_to_module_path[command[0]] in module_path_to_module_instance:
                 inst = module_path_to_module_instance[command_to_module_path[command[0]]]
-                inst.go(command[1:])
+                inst.go(command[1:], message_listener=message_listener)
                 return 1
             else:
-                print("Error : No instance of the module found")
+                message_listener.printMessage("Error : No instance of the module found")
                 return -1
         else:
-            print("Error : No module named : "+command[0])
+            message_listener.printMessage("Error : No module named : "+command[0])
             return -1
-        #return execute_module('plugins.' + str(command[0]), command[1:])
+
+def get_parameter(parameter_name: str):
+    return utils.loadJSON(get_mango_config_file())[parameter_name]
+
+
+def start_server():
+    global is_server_running
+    import socket
+    socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    port = int(get_parameter('mango_server_port'))
+    print("[MANGO] Starting server on port: ",port)
+    #socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    socket.bind(('', port))
+    is_server_running = True
+    while True:
+        socket.listen(5)
+        (clientsocket, (ip, port)) = socket.accept()
+        newClient = ClientConnection.ClientConnection(ip, port, clientsocket)
+        newClient.start()
+
+
+    print("Server ended")
+    socket.close()

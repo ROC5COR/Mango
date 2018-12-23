@@ -1,1 +1,4 @@
 *.pyc
+home_config/
+.DS_Store
+.idea

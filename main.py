@@ -25,11 +25,13 @@ if len(sys.argv) > 1: # An arguments was passed
                 print("Exiting")
                 break
     else:
-        if mango.parse_command(sys.argv[1:]) < 0:
-            print("Rotten mango !")
+        if not mango.is_server_online():
+            if mango.parse_command(sys.argv[1:]) < 0:
+                print("Rotten mango !")
+            else:
+                print("Mango in plate")
         else:
-            print("Mango in plate")
-
+            mango.parse_message_with_server(' '.join(sys.argv[1:]))
 else:
     mango.show_normal_plugin()
     print("Mango in plate")

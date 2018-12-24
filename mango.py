@@ -16,6 +16,7 @@ plugins_path = "plugins"
 command_to_module_path = dict()
 module_path_to_module_instance = dict()
 is_server_running = False
+server_file = "server_started"
 
 # Functions
 def init():
@@ -136,6 +137,7 @@ def parse_command(command: list, message_listener:MessageListener = MessageListe
             message_listener.printMessage("Error : No module named : "+command[0])
             return -1
 
+
 def get_parameter(parameter_name: str):
     return utils.loadJSON(get_mango_config_file())[parameter_name]
 
@@ -143,18 +145,48 @@ def get_parameter(parameter_name: str):
 def start_server():
     global is_server_running
     import socket
+    import os
+
     socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     port = int(get_parameter('mango_server_port'))
     print("[MANGO] Starting server on port: ",port)
     #socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     socket.bind(('', port))
     is_server_running = True
-    while True:
-        socket.listen(5)
-        (clientsocket, (ip, port)) = socket.accept()
-        newClient = ClientConnection.ClientConnection(ip, port, clientsocket)
-        newClient.start()
+    with open(server_file, "w") as f:
+        f.write("ok")
+        f.close()
+
+    try:
+        while True:
+            socket.listen(5)
+            (clientsocket, (ip, port)) = socket.accept()
+            newClient = ClientConnection.ClientConnection(ip, port, clientsocket)
+            newClient.start()
+    except KeyboardInterrupt:
+        print("Server stopped")
 
 
+    os.remove(server_file)
     print("Server ended")
     socket.close()
+
+def is_server_online():
+    import os
+    if os.path.exists(server_file):
+        return True
+    else:
+        return False
+
+def parse_message_with_server(message: str):
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    port = int(get_parameter('mango_server_port'))
+    s.connect(("", port))
+
+    s.send(message.encode('utf-8'))
+    r = s.recv(4096)
+    print(r.decode('utf-8'))
+
+
+

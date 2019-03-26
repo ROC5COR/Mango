@@ -2,14 +2,14 @@ import serial
 from serial.tools.list_ports import  comports
 import time
 import sys
-from mango_plugin import mango_plugin
+from Plugin import Plugin
 from MessageListener import MessageListener
 
 def instance():
     return Uart()
 
 
-class Uart(mango_plugin):
+class Uart(Plugin):
     def __init__(self):
         self.serial = None
         self.portToChoose = -1

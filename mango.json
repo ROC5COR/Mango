@@ -1,12 +1,11 @@
 {
   "config_folder":"home_config",
-  "mango_version":"0.1.2",
+  "version":"0.1.2",
   "plugins_path":"plugins",
   "mango_server_port":"55551",
 
   "all_plugins":
   [
-    "finance",
     "weather",
     "greetings",
     "fetedujour",
@@ -16,7 +15,6 @@
   "normal_plugins":
   [
     "greetings",
-    "finance",
     "weather",
     "fetedujour"
   ]

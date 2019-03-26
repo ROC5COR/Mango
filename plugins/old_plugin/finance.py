@@ -4,14 +4,14 @@ import googlefinance as gf
 import json
 from MessageListener import MessageListener
 import utils
-from mango_plugin import mango_plugin
+from Plugin import Plugin
 from prettytable import PrettyTable
 
 def instance():
     return Finance()
 
 
-class Finance(mango_plugin):
+class Finance(Plugin):
     def __init__(self):
         self.values = []
         values = utils.loadJSON(utils.getConfigFile('finance.json'))['values']

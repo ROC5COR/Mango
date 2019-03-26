@@ -3,3 +3,4 @@ home_config/
 .DS_Store
 .idea
 *~
+config.json

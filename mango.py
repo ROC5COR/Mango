@@ -1,192 +1,176 @@
 import os
-from distutils.version import StrictVersion
 from importlib import import_module
 from MessageListener import MessageListener
 
-from sqlalchemy.ext.indexable import index_property
 
-import mango_plugin
+import Plugin
 import utils
 import ClientConnection
 
-# Variables
-mango_version = StrictVersion('0.0.0')  # default value
-config_path = "home_config"  # default value
-plugins_path = "plugins"
-command_to_module_path = dict()
-module_path_to_module_instance = dict()
-is_server_running = False
-server_file = "server_started"
-
-# Functions
-def init():
-    print("[Init]")
-    global config_path
-    config_path = get_config_folder()
-
-    global mango_version
-    mango_version = utils.loadJSON(get_mango_config_file())['mango_version']
-
-    global plugins_path
-    plugins_path = utils.getPluginsPath()
-
-    load_modules()
-
-    print("[Init] : OK")
-    return 1
+# Static functions for simplicity
+def get_parameter(parameter_name: str):
+    return utils.loadJSON(Mango.get_mango_config_file())[parameter_name]
 
 
 def get_config_folder():
-    return utils.loadJSON(get_mango_config_file())['config_folder']
+    return utils.loadJSON(Mango.get_mango_config_file())['config_folder']
+
 
 def get_plugins_folder():
-    return utils.loadJSON(get_mango_config_file())['plugins_path']
-
-def show_all_plugin():
-    plugin_names = utils.loadJSON(get_mango_config_file())['all_plugins']
-    for plugin_name in plugin_names:
-        execute_module('plugins.' + plugin_name)
+    return utils.loadJSON(Mango.get_mango_config_file())['plugins_path']
 
 
-def show_normal_plugin():
-    plugin_names = utils.loadJSON(get_mango_config_file())['normal_plugins']
-    for plugin_name in plugin_names:
-        execute_module('plugins.' + plugin_name)
+def get_plugins_path():
+    return utils.getAbsoluteFilePath(get_plugins_folder())
 
 
-def get_mango_config_file():
-    return utils.getMangoFile()
+class Mango():
+    def __init__(self):
+        print("[Init]")
 
+        self.config_path = get_config_folder()  # default value
+        self.plugins_path = get_plugins_path()
+        self.command_to_plugin_path = dict() # Store command name to plugin path
+        self.module_path_to_plugin_instance = dict() # Store plugin path => instance
+        self.is_server_running = False
+        self.server_file = "server_started"
+        self.config_path = get_config_folder()
+        self.version = utils.loadJSON(Mango.get_mango_config_file())['version']
+        self.plugins_path = utils.getPluginsPath()
 
-def load_plugin(plugin_name):
-    loaded_module = import_module(plugin_name)
-    return loaded_module
+        self.load_modules()
 
+        print("[Init] : OK")
 
-def execute_module(module_path: str, args=[]):
-    try:
-        loaded_module = load_plugin(module_path)
-        instance = loaded_module.instance()
+    def load_modules(self):
+        objects = os.listdir(self.plugins_path)
 
-        if not issubclass(instance.__class__, mango_plugin.mango_plugin):
-            print("[MANGO] Warning : This is not a subclass of mango_plugin")
-        print(instance.get_aliases())
+        for i in objects:
+            if i.endswith('.py'):
+                try:
+                    plugin_path = get_plugins_folder() + '.' + i[0:-3]
+                    loaded_module = self.load_plugin(plugin_path)  # Instanciate
+                    instance = loaded_module.instance()
+                    self.command_to_plugin_path[i[0:-3]] = plugin_path
+                    self.module_path_to_plugin_instance[plugin_path] = instance
 
-        instance.go(args)
-    except ModuleNotFoundError as e:
-        print("Plugin not found : " + str(module_path) + "(" + str(e) + ")")
+                    if not issubclass(instance.__class__, Plugin.Plugin):
+                        print("[MANGO] Warning : This is not a subclass of mango_plugin")
+                    else:
+                        aliases = instance.get_aliases()
+                        for alias in aliases:
+                            self.command_to_plugin_path[alias] = plugin_path
 
+                except ModuleNotFoundError as e:
+                    print("Plugin not found : " + str(plugin_path) + "(" + str(e) + ")")
+                except e:
+                    print("Error as occurred while loading module (" + str(e) + ")")
 
+        for k in self.command_to_plugin_path:
+            print(k, "=>", self.command_to_plugin_path[k])
 
-def load_modules():
-    global command_to_module_path
-    global plugins_path
-    global module_path_to_module_instance
+        print("[MANGO] All modules loaded")
 
-    objects = os.listdir(plugins_path)
+    """def show_normal_plugin(self):
+        plugin_names = utils.loadJSON(Mango.get_mango_config_file())['normal_plugins']
+        for plugin_name in plugin_names:
+            self.execute_module('plugins.' + plugin_name)
 
-    for i in objects:
-        if i.endswith('.py'):
+    def show_all_plugin(self):
+        plugin_names = utils.loadJSON(Mango.get_mango_config_file())['all_plugins']
+        for plugin_name in plugin_names:
+            self.execute_module('plugins.' + plugin_name)"""
 
-            try:
-                plugin_path = get_plugins_folder() + '.' + i[0:-3]
-                loaded_module = load_plugin(plugin_path) # Instanciate
-                instance = loaded_module.instance()
-                command_to_module_path[i[0:-3]] = plugin_path # Store command => plugin path
-                module_path_to_module_instance[plugin_path] = instance # Store plugin path => instance
+    def parse_message_with_server(self, message: str):
+        import socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        port = int(get_parameter('mango_server_port'))
+        s.connect(("", port))
 
-                if not issubclass(instance.__class__, mango_plugin.mango_plugin):
-                    print("[MANGO] Warning : This is not a subclass of mango_plugin")
-                else:
-                    aliases = instance.get_aliases()
-                    for alias in aliases:
-                        command_to_module_path[alias] = plugin_path
+        s.send(message.encode('utf-8'))
+        r = s.recv(4096)
+        print(r.decode('utf-8'))
 
-            except ModuleNotFoundError as e:
-                print("Plugin not found : " + str(plugin_path) + "(" + str(e) + ")")
-            except Exception as e:
-                print("Error as occured while loading module ("+str(e)+")")
+    def start_server(self):
+        import socket
+        import os
 
-    for k in command_to_module_path:
-        print(k,"=>",command_to_module_path[k])
+        socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        port = int(get_parameter('mango_server_port'))
+        print("[MANGO] Starting server on port: ", port)
+        # socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        socket.bind(('', port))
+        self.is_server_running = True
+        with open(self.server_file, "w") as f:
+            f.write("ok")
+            f.close()
 
-    print("[MANGO] All modules loaded")
+        try:
+            while True:
+                socket.listen(5)
+                (clientsocket, (ip, port)) = socket.accept()
+                newClient = ClientConnection.ClientConnection(ip, port, clientsocket, self)
+                newClient.start()
+        except KeyboardInterrupt:
+            print("Server stopped")
 
+        os.remove(self.server_file)
+        print("Server ended")
+        socket.close()
 
-def parse_command(command: list, message_listener:MessageListener = MessageListener() ):
-    """
+    def load_plugin(self, plugin_name):
+        return import_module(plugin_name)
 
-    :param command: List of string commands
-    :return: state
-    """
-    if command[0] == "":
-        return 1
-    elif command[0] == "exit":
-        message_listener.printMessage("Bye")
-        return 0
-    else:
-        if command[0] in command_to_module_path:
-            if command_to_module_path[command[0]] in module_path_to_module_instance:
-                inst = module_path_to_module_instance[command_to_module_path[command[0]]]
-                inst.go(command[1:], message_listener=message_listener)
-                return 1
-            else:
-                message_listener.printMessage("Error : No instance of the module found")
-                return -1
+    def execute_module(self, module_path: str, args=[]):
+        try:
+            loaded_module = self.load_plugin(module_path)
+            instance = loaded_module.instance()
+
+            if not issubclass(instance.__class__, Plugin.Plugin):
+                print("[MANGO] Warning : This is not a subclass of mango_plugin")
+            print(instance.get_aliases())
+
+            instance.go(args)
+        except ModuleNotFoundError as e:
+            print("Plugin not found : " + str(module_path) + "(" + str(e) + ")")
+        except:
+            print("Error while executing plugin: "+str(module_path)+" ("+str(e)+")")
+
+    def parse_command(self, command: list, message_listener: MessageListener = MessageListener()):
+        """
+
+        :param command: List of string commands
+        :return: 1 if ok, 0 if quit, -1 if error
+        """
+        if command[0] == "":
+            return 1
+        elif command[0] == "exit":
+            message_listener.printMessage("Bye")
+            return 0
         else:
-            message_listener.printMessage("Error : No module named : "+command[0])
-            return -1
+            if command[0] in self.command_to_plugin_path:
+                if self.command_to_plugin_path[command[0]] in self.module_path_to_plugin_instance:
+                    inst = self.module_path_to_plugin_instance[self.command_to_plugin_path[command[0]]]
+                    inst.go(command[1:], message_listener=message_listener)
+                    return 1
+                else:
+                    message_listener.printMessage("Error : No instance of the module found")
+                    return -1
+            else:
+                message_listener.printMessage("Error : No module named : " + command[0])
+                return -1
 
+    def is_server_online(self):
+        import os
+        if os.path.exists(self.server_file):
+            return True
+        else:
+            return False
 
-def get_parameter(parameter_name: str):
-    return utils.loadJSON(get_mango_config_file())[parameter_name]
+    def get_version(self):
+        return self.version
 
-
-def start_server():
-    global is_server_running
-    import socket
-    import os
-
-    socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    port = int(get_parameter('mango_server_port'))
-    print("[MANGO] Starting server on port: ",port)
-    #socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    socket.bind(('', port))
-    is_server_running = True
-    with open(server_file, "w") as f:
-        f.write("ok")
-        f.close()
-
-    try:
-        while True:
-            socket.listen(5)
-            (clientsocket, (ip, port)) = socket.accept()
-            newClient = ClientConnection.ClientConnection(ip, port, clientsocket)
-            newClient.start()
-    except KeyboardInterrupt:
-        print("Server stopped")
-
-
-    os.remove(server_file)
-    print("Server ended")
-    socket.close()
-
-def is_server_online():
-    import os
-    if os.path.exists(server_file):
-        return True
-    else:
-        return False
-
-def parse_message_with_server(message: str):
-    import socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    port = int(get_parameter('mango_server_port'))
-    s.connect(("", port))
-
-    s.send(message.encode('utf-8'))
-    r = s.recv(4096)
-    print(r.decode('utf-8'))
-
-
+    @staticmethod
+    def get_mango_config_file():
+        return utils.getAbsoluteFilePath('mango.json')
 

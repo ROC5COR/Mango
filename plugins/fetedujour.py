@@ -3,13 +3,13 @@ from urllib.error import URLError
 from urllib.request import urlopen, Request
 import re
 import utils
-from mango_plugin import mango_plugin
+from Plugin import Plugin
 from MessageListener import MessageListener
 
 def instance():
     return Fetedujour()
 
-class Fetedujour(mango_plugin):
+class Fetedujour(Plugin):
     def __init__(self):
         self.url = "http://fetedujour.fr/"
 

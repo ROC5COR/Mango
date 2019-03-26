@@ -17,15 +17,15 @@ def loadJSON(file_name):
 def getMangoFolder():
     return os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
-def getMangoFile():
-    return os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), 'mango.json')
+def getAbsoluteFilePath(filename: str):
+    return os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), filename)
 
 def getPluginsPath():
     return os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), mango.get_plugins_folder())
 
 def getConfigFile(file_name):
     global config_path
-    return os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), mango.config_path, file_name)
+    return os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), mango.get_config_folder(), file_name)
 
 
 
@@ -37,6 +37,8 @@ def internet_reachable():
     except URLError:
         return False
     except RemoteDisconnected:
+        return False
+    except ConnectionResetError:
         return False
 
 

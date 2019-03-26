@@ -1,13 +1,13 @@
 import random
 import time
-from mango_plugin import mango_plugin
+from Plugin import Plugin
 import utils
 from MessageListener import MessageListener
 
 def instance():
     return Greetings()
 
-class Greetings(mango_plugin):
+class Greetings(Plugin):
     def __init__(self):
         data = utils.loadJSON(utils.getConfigFile('greetings.json'))
         user_name = data['user_name']

@@ -7,14 +7,15 @@ Modified by Romain LE DONGE
 """
 
 import math, decimal, datetime
-from mango_plugin import mango_plugin
+from Plugin import Plugin
 dec = decimal.Decimal
 from MessageListener import MessageListener
+
 
 def instance():
     return Moon()
 
-class Moon(mango_plugin):
+class Moon(Plugin):
 
     def go(self, args: list, message_listener: MessageListener = MessageListener()):
         pos = self.position()

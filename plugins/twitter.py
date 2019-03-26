@@ -1,14 +1,14 @@
 import tweepy
 import utils
 from prettytable import PrettyTable
-from mango_plugin import mango_plugin
+from Plugin import Plugin
 from MessageListener import MessageListener
 
 def instance():
     return Twitter()
 
 
-class Twitter(mango_plugin):
+class Twitter(Plugin):
     def __init__(self):
         #print('[TWTTR]')
         twitterConfigData = utils.loadJSON(utils.getConfigFile('twitter.json'))

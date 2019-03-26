@@ -1,5 +1,5 @@
 # Mango
-Mango is a little application that aims at making your life easier by accomplishing various tasks to help you during your daily life.
+Project Mango is a little application that aims at making your life easier by accomplishing various tasks to help you during your daily life.
 Mango can be extended by adding python plugins.
 
 Today Mango has: 

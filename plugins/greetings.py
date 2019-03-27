@@ -3,14 +3,19 @@ import time
 from Plugin import Plugin
 import utils
 from MessageListener import MessageListener
+from ParameterManager import ParamameterManager
+
 
 def instance():
     return Greetings()
 
 class Greetings(Plugin):
     def __init__(self):
-        data = utils.loadJSON(utils.getConfigFile('greetings.json'))
-        user_name = data['user_name']
+        pm = ParamameterManager(self.__class__, 'config.json')
+
+        #data = utils.loadJSON(utils.getConfigFile('greetings.json'))
+        #user_name = data['user_name']
+        user_name = pm.get_param('user_identity', '')
         self.morningGreetings = ['Bonjour '+user_name+', bonne journée !', 'Bonjour, bon matin !']
         self.middayGreetings = ['Bonjour :)', 'Hola !','Salut !', 'Salut ! :)','Yo !']
         self.eveningGreetings = ['Bonsoir !','Bonne soirée à vous', 'Bonsoir '+user_name+' !']

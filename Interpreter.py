@@ -14,18 +14,17 @@ class Interpreter:
     """
         Receive textual input and transform it to valid array of command + arguments
     """
-    def parse_command(self, command:str) -> list : 
-        if command == "":
-            return {'command':"", 'arguments':[]}
+    def parse_command(self, command_str:str) -> list : 
+        if command_str == "":
+            return {'commands':"", 'arguments':[]}
 
-        output_command = None
-        output_arguments = []
-
-        commands = self.split_with_subcommands(command)
+        commands = self.split_with_subcommands(command_str)
+        is_plugin = False
         if len(commands) > 0:
             if commands[0] in self.command_to_instance.keys():
-                output_command = commands[0] # Setting command
-                if len(commands) > 1:
-                    output_arguments = commands[1:] # Setting arguments
-        return {'command':output_command, 'arguments':output_arguments}
+                is_plugin = True
+            else:
+                is_plugin = False
+                
+        return {'commands':commands, 'is_plugin':is_plugin}
         

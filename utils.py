@@ -14,14 +14,18 @@ def loadJSON(file_name):
     return data
 
 
+
 def getMangoFolder():
     return os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
 
 def getAbsoluteFilePath(filename: str):
     return os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), filename)
 
+
 def getPluginsPath():
     return os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))), mango.get_plugins_folder())
+
 
 def getConfigFile(file_name):
     global config_path

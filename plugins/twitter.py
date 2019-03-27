@@ -3,6 +3,7 @@ import utils
 from prettytable import PrettyTable
 from Plugin import Plugin
 from MessageListener import MessageListener
+from ParameterManager import ParamameterManager
 
 def instance():
     return Twitter()
@@ -11,11 +12,17 @@ def instance():
 class Twitter(Plugin):
     def __init__(self):
         #print('[TWTTR]')
-        twitterConfigData = utils.loadJSON(utils.getConfigFile('twitter.json'))
-        consKey = twitterConfigData["consumer_key"]
-        consSecret = twitterConfigData["consumer_secret"]
-        accessToken = twitterConfigData["access_token"]
-        accessTokenSecret = twitterConfigData["access_token_secret"]
+        pm = ParamameterManager(self.__class__, 'config.json')
+        consKey = pm.get_param("consumer_key", "")
+        consSecret = pm.get_param("consumer_secret", "")
+        accessToken = pm.get_param("access_token", "")
+        accessTokenSecret = pm.get_param("access_token_secret", "")
+
+        #twitterConfigData = utils.loadJSON(utils.getConfigFile('twitter.json'))
+        #consKey = twitterConfigData["consumer_key"]
+        #consSecret = twitterConfigData["consumer_secret"]
+        #accessToken = twitterConfigData["access_token"]
+        #accessTokenSecret = twitterConfigData["access_token_secret"]
 
         auth = tweepy.OAuthHandler(consKey, consSecret)
         auth.set_access_token(accessToken, accessTokenSecret)

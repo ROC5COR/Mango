@@ -20,7 +20,7 @@ class ParamameterManager:
 
     def write_to_disk(self):
         with open(self.config_file, 'w') as f:
-            json.dump(self.config, f)
+            json.dump(self.config, f, sort_keys=True, indent=4)
             f.close()
 
     def set_param(self, key:str, value):

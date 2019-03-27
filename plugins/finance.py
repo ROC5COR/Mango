@@ -6,6 +6,7 @@ from MessageListener import MessageListener
 import utils
 from Plugin import Plugin
 from prettytable import PrettyTable
+from ParameterManager import ParamameterManager
 
 def instance():
     return Finance()
@@ -13,8 +14,10 @@ def instance():
 
 class Finance(Plugin):
     def __init__(self):
+        pm = ParamameterManager(self.__class__, 'config.json')
         self.values = []
-        values = utils.loadJSON(utils.getConfigFile('finance.json'))['values']
+        #values = utils.loadJSON(utils.getConfigFile('finance.json'))['values']
+        values = pm.get_param("values",["Paris, France"])
         for value in values:
             self.values.append(value)
         self.table = PrettyTable(['Name', 'LstTrdPrice', 'LstTrdTime'])
@@ -22,7 +25,7 @@ class Finance(Plugin):
     def go(self, args: list, message_listener: MessageListener = MessageListener()):
         message_listener.printMessage("[FNC]")
         message_listener.printMessage("[FNC] Financial module unavailable")
-        return -1
+        return -1 # Unable to go further because googlefinance is not working anymore
 
         thereIsData = False
 
